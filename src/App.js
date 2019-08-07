@@ -19,11 +19,17 @@ function App() {
   React.useEffect(() => {
     base("中餐好朋友")
       .select({
-        fields: ["成員",'頭像']
+        fields: ["成員", "頭像"]
       })
       .firstPage((err, records) => {
-        console.log(records)
-        setMember(records.map(r => ({ id: r.id, name: r.get("成員"), avatar:r.get('頭像') })));
+        console.log(records);
+        setMember(
+          records.map(r => ({
+            id: r.id,
+            name: r.get("成員"),
+            avatar: r.get("頭像")
+          }))
+        );
       });
 
     base("中午好餐廳")
@@ -54,28 +60,46 @@ function App() {
   return (
     <div style={{ margin: "30px" }}>
       <div style={{ width: "40%", display: "inline-block" }}>
-        <span style={{ fontSize: "30px" }}>請選擇要去吃飯的人</span>
+        <div style={{ fontSize: "30px" }}>請選擇要去吃飯的人</div>
         {member.map(m => (
-          <div key={m.id} style={{ fontSize: "20px", marginBottom: "2px" }}>
-            <input
-              type="checkbox"
-              value={m.id}
-              id={m.id}
-              onChange={() => {
-                if (!wantToGo.includes(m.id))
-                  setWantToGo(state => [...state, m.id]);
-                else {
-                  const wantGo = [...wantToGo];
-                  const index = wantGo.indexOf(m.id);
-                  if (index > -1) {
-                    wantGo.splice(index, 1);
-                  }
-                  setWantToGo(wantGo);
-                }
-              }}
-              checked={wantToGo.includes(m.id)}
-            />
-            <label htmlFor={m.id}> <img style={{ width: "50px",marginRight:'10px'}} alt={m.name} src={m.avatar[0].thumbnails.large.url}/>{m.name}</label>
+          <div
+            key={m.id}
+            style={{
+              fontSize: "20px",
+              marginBottom: "2px",
+              width: "100px",
+              display: "inline-block"
+            }}
+          >
+            <label htmlFor={m.id}>
+              {" "}
+              <img
+                style={{ width: "80px", marginRight: "10px" }}
+                alt={m.name}
+                src={m.avatar[0].thumbnails.large.url}
+              />
+              <div >
+                <input
+                  type="checkbox"
+                  value={m.id}
+                  id={m.id}
+                  onChange={() => {
+                    if (!wantToGo.includes(m.id))
+                      setWantToGo(state => [...state, m.id]);
+                    else {
+                      const wantGo = [...wantToGo];
+                      const index = wantGo.indexOf(m.id);
+                      if (index > -1) {
+                        wantGo.splice(index, 1);
+                      }
+                      setWantToGo(wantGo);
+                    }
+                  }}
+                  checked={wantToGo.includes(m.id)}
+                />
+                {m.name}
+              </div>
+            </label>
           </div>
         ))}
 
