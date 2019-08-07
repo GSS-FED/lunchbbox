@@ -1,161 +1,152 @@
 import React from "react";
-import logo from "./logo.svg";
-import Airtable from "airtable";
-import "./App.css";
-import { ReactComponent as MyCheckbox } from "./checkbox.svg";
+import AvatarCheckbox from "./components/AvatarCheckbox";
+import useFedLunchInfo from "./hook/useFedLunchInfo";
+import { ReactComponent as Logo } from "./static/svg/logo.svg";
+import styled from "styled-components/macro";
 
-Airtable.configure({
-  endpointUrl: "https://api.airtable.com",
-  apiKey: "keyv7sHqzJx3CNjUp"
-});
-const base = Airtable.base("appbBH2HPUYrrBv1u");
+const Container = styled.div`
+  margin: 0 auto;
+  /* max-width: 1000px; */
+  display: flex;
+  flex-direction: column;
+`;
+
+const PrimaryButton = styled.div`
+  box-sizing: border-box;
+  margin: 10px auto;
+  width: 158px;
+  padding: 12px 16px;
+  font-size: 24px;
+  border: solid 3px #505050;
+  border-radius: 28px;
+`;
+
+const BottomBackground = styled.div`
+  background-color: #ffcc00;
+  min-height:calc(100vh - 194px);
+`;
+
+const TopLayout = styled.div`
+  margin: 28px;
+`;
+
+const TopLogoArea = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+`;
+
+const Text = styled.span`
+  color: ${props => (!!props.color ? props.color : "#000")};
+  font-size: ${props => (!!props.size ? props.size : "16px")};
+  margin-right: ${props => (!!props.marginRight ? props.marginRight : 0)};
+`;
 
 function App() {
-  const [member, setMember] = React.useState([]);
-  const [rest, setRest] = React.useState([]);
+  const { members, restaurant } = useFedLunchInfo();
   const [wantToGo, setWantToGo] = React.useState([]);
-  const [canGoRest, setCanGoRest] = React.useState([]);
-  const [gogogo, setGogogo] = React.useState([]);
+  const [searchResult, setSearchResult] = React.useState([]);
 
-  React.useEffect(() => {
-    base("中餐好朋友")
-      .select({
-        fields: ["成員", "頭像"]
-      })
-      .firstPage((err, records) => {
-        console.log(records);
-        setMember(
-          records.map(r => ({
-            id: r.id,
-            name: r.get("成員"),
-            avatar: r.get("頭像")
-          }))
-        );
-      });
-
-    base("中午好餐廳")
-      .select({
-        fields: ["餐廳", "不是那麼愛這間的人"]
-      })
-      .firstPage((err, records) => {
-        setRest(
-          records.map(r => ({
-            id: r.id,
-            name: r.get("餐廳"),
-            noLike: r.get("不是那麼愛這間的人")
-          }))
-        );
-      });
-  }, []);
-
-  React.useEffect(() => {
-    if (canGoRest.length > 0) {
-      const randomResult = canGoRest.sort((a, b) => {
+  const searchRestaurantWeCanGo = () => {
+    //過濾掉有人不喜歡的餐廳
+    const filterRestaurant = [...restaurant].filter(item => {
+      return (
+        item.noLike === undefined ||
+        item.noLike.filter(noLikePeople => wantToGo.indexOf(noLikePeople) > -1)
+          .length === 0
+      );
+    });
+    //隨機排序後 拿前三個
+    const randomResult = filterRestaurant
+      .sort((a, b) => {
         var num = Math.random() > 0.5 ? -1 : 1;
         return num;
-      });
-      setGogogo([randomResult[0], randomResult[1], randomResult[2]]);
-    }
-  }, [canGoRest]);
+      })
+      .slice(0, 3);
+    setSearchResult(randomResult);
+  };
 
   return (
-    <div style={{ margin: "30px" }}>
-      <div style={{ width: "40%", display: "inline-block" }}>
-        <div style={{ fontSize: "30px" }}>請選擇要去吃飯的人</div>
-        {member.map(m => (
-          <div
-            key={m.id}
-            style={{
-              fontSize: "20px",
-              marginBottom: "8px",
-              marginRight: "10px",
-              display: "inline-block"
-            }}
-          >
-            <label
-              style={{
-                position: "relative"
-              }}
-            >
-              <img
-                style={{
-                  width: "80px",
-                  height: "80px",
-                  borderRadius: "22px",
-                  objectFit: "cover",
-                  opacity: wantToGo.includes(m.id) ? 1 : 0.5,
-                  transition: "all .3s",
-                  border: "solid 4px #FECE2E"
-                }}
-                alt={m.name}
-                src={m.avatar[0].thumbnails.large.url}
-              />
-              <div style={{ textAlign: "center" }}>
-                <input
-                  style={{ display: "none" }}
-                  type="checkbox"
-                  value={m.id}
-                  onChange={() => {
-                    if (!wantToGo.includes(m.id))
-                      setWantToGo(state => [...state, m.id]);
-                    else {
-                      const wantGo = [...wantToGo];
-                      const index = wantGo.indexOf(m.id);
-                      if (index > -1) {
-                        wantGo.splice(index, 1);
-                      }
-                      setWantToGo(wantGo);
-                    }
-                  }}
-                  checked={wantToGo.includes(m.id)}
-                />
-                {m.name}
-              </div>
-              <MyCheckbox
-                style={{
-                  position: "absolute",
-                  left: "calc(44px - 16px)",
-                  bottom: "36px",
-                  transform: "",
-                  transition: "opacity .3s,transform .3s cubic-bezier(0.25, 0.1, 0.47, 1.67)",
-                  opacity: wantToGo.includes(m.id) ? 1 : 0,
-                  transform: wantToGo.includes(m.id) ? "scale(1.3)" : "scale(0)",
-                }}
-              />
-            </label>
+    <Container>
+      <TopLayout>
+        <TopLogoArea>
+          <Logo />
+          <div>
+            <Text color="#505050" size="26px" marginRight="8px">
+              {wantToGo.length}
+            </Text>
+            <Text color="#a7a7a7" size="18px">
+              /
+            </Text>
+            <Text color="#a7a7a7" size="20px">
+              {members.length}
+            </Text>
           </div>
-        ))}
-
-        <button
-          style={{
-            marginTop: "10px",
-            width: "100px",
-            height: "40px",
-            fontSize: "24px"
-          }}
-          onClick={() => {
-            const filterRest = [...rest].filter(item => {
-              return (
-                item.noLike === undefined ||
-                item.noLike.filter(
-                  noLikePeople => wantToGo.indexOf(noLikePeople) > -1
-                ).length === 0
-              );
-            });
-            setCanGoRest(filterRest);
-          }}
-        >
-          篩選
-        </button>
-      </div>
-      <div
-        style={{ width: "40%", display: "inline-block", verticalAlign: "top" }}
-      >
-        <span style={{ fontSize: "30px" }}>快去這邊吃飯</span>
-        {!!gogogo && gogogo.map(gogo => <div key={gogo.id}>{gogo.name}</div>)}
-      </div>
-    </div>
+        </TopLogoArea>
+        <div>
+          {members.map(member => {
+            const ischecked = wantToGo.includes(member.id);
+            return (
+              <AvatarCheckbox
+                key={member.id}
+                member={member}
+                ischecked={ischecked}
+                handleChange={() => {
+                  if (!ischecked) setWantToGo(state => [...state, member.id]);
+                  else {
+                    const wantGo = [...wantToGo];
+                    const index = wantGo.indexOf(member.id);
+                    if (index > -1) {
+                      wantGo.splice(index, 1);
+                    }
+                    setWantToGo(wantGo);
+                  }
+                }}
+              />
+            );
+          })}
+        </div>
+      </TopLayout>
+      <BottomBackground>
+        <div>
+          {!!searchResult &&
+            searchResult.map(r => <RestaurantCard key={r.id} name={r.name} />)}
+        </div>
+        <PrimaryButton onClick={searchRestaurantWeCanGo}>
+          {searchResult.length > 0 ? "我想吃別的" : "到底吃什麼"}
+        </PrimaryButton>
+      </BottomBackground>
+    </Container>
   );
 }
+
+const RestaurantCardContainer = styled.div`
+  margin: 28px;
+  background-color: #fff;
+  border-radius: 20px;
+  display: flex;
+`;
+
+const RestaurantPhoto = styled.div`
+  width: 140px;
+  height: 140px;
+  margin: 10px;
+  border: solid;
+  border-radius: 16px;
+  background:#ffffff;
+`;
+
+const RestaurantTitle = styled.div`
+  font-size: 32px;
+  display: flex;
+  align-items: center;
+`;
+
+const RestaurantCard = props => (
+  <RestaurantCardContainer>
+    <RestaurantPhoto />
+    <RestaurantTitle>{props.name}</RestaurantTitle>
+  </RestaurantCardContainer>
+);
 
 export default App;
