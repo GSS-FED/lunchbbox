@@ -2,6 +2,7 @@ import React from "react";
 import logo from "./logo.svg";
 import Airtable from "airtable";
 import "./App.css";
+import { ReactComponent as MyCheckbox } from "./checkbox.svg";
 
 Airtable.configure({
   endpointUrl: "https://api.airtable.com",
@@ -66,23 +67,34 @@ function App() {
             key={m.id}
             style={{
               fontSize: "20px",
-              marginBottom: "2px",
-              width: "100px",
+              marginBottom: "8px",
+              marginRight: "10px",
               display: "inline-block"
             }}
           >
-            <label htmlFor={m.id}>
-              {" "}
+            <label
+              style={{
+                position: "relative"
+              }}
+            >
               <img
-                style={{ width: "80px", marginRight: "10px" }}
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  borderRadius: "22px",
+                  objectFit: "cover",
+                  opacity: wantToGo.includes(m.id) ? 1 : 0.5,
+                  transition: "all .3s",
+                  border: "solid 4px #FECE2E"
+                }}
                 alt={m.name}
                 src={m.avatar[0].thumbnails.large.url}
               />
-              <div >
+              <div style={{ textAlign: "center" }}>
                 <input
+                  style={{ display: "none" }}
                   type="checkbox"
                   value={m.id}
-                  id={m.id}
                   onChange={() => {
                     if (!wantToGo.includes(m.id))
                       setWantToGo(state => [...state, m.id]);
@@ -99,6 +111,17 @@ function App() {
                 />
                 {m.name}
               </div>
+              <MyCheckbox
+                style={{
+                  position: "absolute",
+                  left: "calc(44px - 16px)",
+                  bottom: "36px",
+                  transform: "",
+                  transition: "opacity .3s,transform .3s cubic-bezier(0.25, 0.1, 0.47, 1.67)",
+                  opacity: wantToGo.includes(m.id) ? 1 : 0,
+                  transform: wantToGo.includes(m.id) ? "scale(1.3)" : "scale(0)",
+                }}
+              />
             </label>
           </div>
         ))}
