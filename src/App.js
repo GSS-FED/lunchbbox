@@ -134,6 +134,7 @@ const RestaurantPhoto = styled.div`
   border: solid;
   border-radius: 16px;
   background:#ffffff;
+  flex: auto 0 0; 
 `;
 
 const RestaurantTitle = styled.div`
