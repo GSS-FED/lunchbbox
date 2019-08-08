@@ -16,7 +16,7 @@ const CheckboxWithAnimation = styled(MyCheckbox)`
   bottom: 26px;
   transition: opacity 0.3s, transform 0.3s cubic-bezier(0.25, 0.1, 0.47, 1.67);
   opacity: ${props => (props.ischecked ? 1 : 0)};
-  transform: ${props => (props.ischecked ? "scale(1)" : "scale(0)")};
+  transform: ${props => (props.ischecked ? "scale(0.85)" : "scale(0)")};
 `;
 const Avatar = styled.img`
   width: 50px;

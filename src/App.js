@@ -57,6 +57,11 @@ function App() {
   const [wantToGo, setWantToGo] = React.useState([]);
   const [searchResult, setSearchResult] = React.useState(["", "", ""]);
 
+  React.useEffect(() => {
+    //預設全部出門
+    setWantToGo(members.map(m => m.id));
+  },[members]);
+
   const searchRestaurantWeCanGo = () => {
     //過濾掉有人不喜歡的餐廳
     const filterRestaurant = [...restaurant].filter(item => {
@@ -111,7 +116,7 @@ function App() {
         pose={!(searchResult[0] === "") ? "open" : "closed"}
       >
         {!!searchResult &&
-          searchResult.map((r,i) => <RestaurantCard key={i} name={r.name} />)}
+          searchResult.map((r, i) => <RestaurantCard key={i} name={r.name} />)}
       </BottomBackgroundWithPose>
       <PrimaryButton onClick={searchRestaurantWeCanGo}>
         {searchResult[0] === "" ? "到底吃什麼" : "我想吃別的"}
