@@ -8,6 +8,7 @@ const Label = styled.label`
   margin-right: 10px;
   display: inline-block;
   position: relative;
+  cursor: pointer;
 `;
 const CheckboxWithAnimation = styled(MyCheckbox)`
   position: absolute;

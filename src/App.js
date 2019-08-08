@@ -3,6 +3,7 @@ import AvatarCheckbox from "./components/AvatarCheckbox";
 import useFedLunchInfo from "./hook/useFedLunchInfo";
 import { ReactComponent as Logo } from "./static/svg/logo.svg";
 import styled from "styled-components/macro";
+import posed from "react-pose";
 
 const Container = styled.div`
   margin: 0 auto;
@@ -19,12 +20,21 @@ const PrimaryButton = styled.div`
   font-size: 24px;
   border: solid 3px #505050;
   border-radius: 28px;
+  cursor: pointer;
 `;
 
 const BottomBackground = styled.div`
   background-color: #ffcc00;
-  min-height:calc(100vh - 194px);
+  min-height: calc(100vh - 194px);
 `;
+
+const BottomBackgroundWithPose = posed(BottomBackground)({
+  open: {
+    delayChildren: 100,
+    staggerChildren: 50
+  },
+  closed: {}
+});
 
 const TopLayout = styled.div`
   margin: 28px;
@@ -45,7 +55,7 @@ const Text = styled.span`
 function App() {
   const { members, restaurant } = useFedLunchInfo();
   const [wantToGo, setWantToGo] = React.useState([]);
-  const [searchResult, setSearchResult] = React.useState([]);
+  const [searchResult, setSearchResult] = React.useState(["", "", ""]);
 
   const searchRestaurantWeCanGo = () => {
     //過濾掉有人不喜歡的餐廳
@@ -71,17 +81,7 @@ function App() {
       <TopLayout>
         <TopLogoArea>
           <Logo />
-          <div>
-            <Text color="#505050" size="26px" marginRight="8px">
-              {wantToGo.length}
-            </Text>
-            <Text color="#a7a7a7" size="18px">
-              /
-            </Text>
-            <Text color="#a7a7a7" size="20px">
-              {members.length}
-            </Text>
-          </div>
+          <Counter total={members.length} selectedCount={wantToGo.length} />
         </TopLogoArea>
         <div>
           {members.map(member => {
@@ -107,15 +107,15 @@ function App() {
           })}
         </div>
       </TopLayout>
-      <BottomBackground>
-        <div>
-          {!!searchResult &&
-            searchResult.map(r => <RestaurantCard key={r.id} name={r.name} />)}
-        </div>
-        <PrimaryButton onClick={searchRestaurantWeCanGo}>
-          {searchResult.length > 0 ? "我想吃別的" : "到底吃什麼"}
-        </PrimaryButton>
-      </BottomBackground>
+      <BottomBackgroundWithPose
+        pose={!(searchResult[0] === "") ? "open" : "closed"}
+      >
+        {!!searchResult &&
+          searchResult.map((r,i) => <RestaurantCard key={i} name={r.name} />)}
+      </BottomBackgroundWithPose>
+      <PrimaryButton onClick={searchRestaurantWeCanGo}>
+        {searchResult[0] === "" ? "到底吃什麼" : "我想吃別的"}
+      </PrimaryButton>
     </Container>
   );
 }
@@ -127,14 +127,19 @@ const RestaurantCardContainer = styled.div`
   display: flex;
 `;
 
+const RestaurantCardContainerWithPose = posed(RestaurantCardContainer)({
+  open: { y: 0, opacity: 1 },
+  closed: { y: 30, opacity: 0 }
+});
+
 const RestaurantPhoto = styled.div`
   width: 140px;
   height: 140px;
   margin: 10px;
   border: solid;
   border-radius: 16px;
-  background:#ffffff;
-  flex: auto 0 0; 
+  background: #ffffff;
+  flex: auto 0 0;
 `;
 
 const RestaurantTitle = styled.div`
@@ -144,10 +149,24 @@ const RestaurantTitle = styled.div`
 `;
 
 const RestaurantCard = props => (
-  <RestaurantCardContainer>
+  <RestaurantCardContainerWithPose>
     <RestaurantPhoto />
     <RestaurantTitle>{props.name}</RestaurantTitle>
-  </RestaurantCardContainer>
+  </RestaurantCardContainerWithPose>
+);
+
+const Counter = props => (
+  <div>
+    <Text color="#505050" size="26px" marginRight="8px">
+      {props.selectedCount}
+    </Text>
+    <Text color="#a7a7a7" size="18px">
+      /
+    </Text>
+    <Text color="#a7a7a7" size="20px">
+      {props.total}
+    </Text>
+  </div>
 );
 
 export default App;
