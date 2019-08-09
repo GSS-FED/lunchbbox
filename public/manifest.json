@@ -3,7 +3,7 @@
   "name": "Lunch Box - 人工智慧",
   "icons": [
     {
-      "src": "/lunchbox.png",
+      "src": "lunchbox.png",
       "sizes": "144*144 128*128 64x64 32x32 24x24 16x16",
       "type": "image/png"
     }
